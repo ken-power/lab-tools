@@ -8,20 +8,20 @@ nodes already listed in `/etc/hosts`, reporting their reachability and health ba
 
 Tested on macOS (stock bash 3.2) and Linux. Target nodes can be macOS or Linux, including ARM-based embedded devices.
 
-## Requirements
+### Requirements
 
 - `bash`, `ping`, `ssh`, `awk`, `sed` (all present by default on macOS and Linux)
 - For levels 3 and 4: key-based SSH login to each node (ssh-agent, or a key without a passphrase). Password login is never attempted.
 - macOS targets: **System Settings → General → Sharing → Remote Login** must be on.
 
-## Install
+### Install
 
 ```bash
 chmod +x labcheck.sh
 mkdir -p ~/bin && cp labcheck.sh ~/bin/labcheck   # make sure ~/bin is on your PATH
 ```
 
-## Set up `/etc/hosts`
+### Set up `/etc/hosts`
 
 labcheck reads every IPv4 entry in `/etc/hosts` and automatically skips loopback (`127.*`), `0.0.0.0`, broadcast, IPv6, and Docker entries. The first hostname on each line is used as the node name and SSH target.
 
@@ -38,7 +38,7 @@ To be explicit about which entries are lab nodes, tag them with a comment and us
 
 Tip: `alias labcheck='labcheck -g lab'` in your shell rc.
 
-## Usage
+### Usage
 
 ```
 labcheck [options] [node ...]
@@ -46,7 +46,7 @@ labcheck [options] [node ...]
 
 With no node names, all nodes from `/etc/hosts` are checked. Name one or more nodes to check only those.
 
-### Examples
+#### Examples
 
 ```bash
 labcheck                    # full check (level 4) of all nodes
@@ -59,7 +59,7 @@ labcheck -u admin device-01 # log in as a specific user
 NO_COLOR=1 labcheck         # plain output, no colors
 ```
 
-### Options
+#### Options
 
 | Option      | Description                                                      | Default      |
 |-------------|------------------------------------------------------------------|--------------|
@@ -72,7 +72,7 @@ NO_COLOR=1 labcheck         # plain output, no colors
 | `-f FILE`   | Read a different hosts file                                      | `/etc/hosts` |
 | `-h`        | Show help                                                        |              |
 
-### Check levels
+#### Check levels
 
 Each level includes the ones below it.
 
@@ -84,7 +84,7 @@ Each level includes the ones below it.
 
 Ping is reported but never decides up/down on its own, because macOS stealth mode and some firewalls drop ICMP.
 
-## Output
+#### Output
 
 Example (level 4):
 
@@ -98,7 +98,7 @@ device-02  10.0.0.31        no    timeout   skip
 3/4 nodes up (level 4, timeout 3s)
 ```
 
-### Columns
+#### Columns
 
 | Column  | Meaning                                                                   |
 |---------|---------------------------------------------------------------------------|
@@ -113,7 +113,7 @@ device-02  10.0.0.31        no    timeout   skip
 | DISK    | Root disk in use; on macOS the Data volume (yellow ≥ 75%, red ≥ 90%)      |
 | GPU     | GPU utilization where the node reports it; `yes` if a GPU is present but gives no reading; `-` if none |
 
-### LOGIN values
+#### LOGIN values
 
 | Value     | Meaning                                                              | Fix                                                  |
 |-----------|----------------------------------------------------------------------|------------------------------------------------------|
@@ -125,7 +125,7 @@ device-02  10.0.0.31        no    timeout   skip
 | `timeout` | Login or health command didn't finish in time                        | Try a larger `-t`                                    |
 | `fail`    | Some other SSH error                                                 | Run `ssh -v <node>` to see why                       |
 
-## Exit status
+### Exit status
 
 | Code | Meaning                                    |
 |------|--------------------------------------------|
@@ -135,7 +135,7 @@ device-02  10.0.0.31        no    timeout   skip
 
 So it can gate other commands: `labcheck -l 2 -g lab && ./launch_training.sh`
 
-## Notes
+### Notes
 
 - All nodes are checked in parallel, so a run takes about one timeout regardless of node count (level 4 allows an extra 10 s for the SSH health command).
 - SSH uses your `~/.ssh/config`, so per-host users, keys and jump hosts apply. Note that `-p` overrides any per-host `Port`, and the TCP check always uses `-p` (default 22).
